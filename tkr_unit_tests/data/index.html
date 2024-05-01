@@ -1,0 +1,62 @@
+<!-- This goes in _tests/_reports-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Links To Reports</title>
+    <style>
+        body {
+            background-color: #333333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .tab {
+            color: #f8f8f8;
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid #f8f8f8;
+            border-bottom: none;
+        }
+        .tab.active {
+            background-color: #f8f8f8;
+            color: #333333;
+        }
+        iframe {
+            width: 1024px;
+            height: 1024px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="tab-container">
+        <div class="tab active" data-url="allure-report/index.html">Allure</div>
+        <div class="tab" data-url="coverage/index.html">Coverage</div>
+    </div>
+    <iframe src="allure-report/index.html"></iframe>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        const iframe = document.querySelector('iframe');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                iframe.src = tab.dataset.url;
+            });
+        });
+    </script>
+</body>
+</html>
