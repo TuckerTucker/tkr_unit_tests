@@ -18,7 +18,7 @@
 1. Write your tests in the appropriate files
 
 ## Start Testing
-1. python tkr_uint_tests.run_tests
+1. python tkr_unit_tests.run_tests
 
 ## Package Structure
 ```
