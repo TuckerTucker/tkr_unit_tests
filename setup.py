@@ -13,8 +13,7 @@ setup(
    "pytest-cov",
    "allure-pytest",
    "requests_mock",
-   "pytest_mock",
-   "shutil"
+   "pytest_mock"
     ],
     entry_points={
         "console_scripts": [
