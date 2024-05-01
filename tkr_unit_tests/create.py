@@ -1,5 +1,5 @@
 import os
-from tkr_unit_tests.create_structure import create_test_structure
+from tkr_unit_tests.create_structure import create_structure
 
 # Set the path to the test directory
 test_dir = "_tests"
@@ -11,4 +11,4 @@ gitignore_path = ".gitignore"
 tests_skip_path = "data/tests_skip.txt"
 
 # Create the test structure
-create_test_structure(test_dir, gitignore_path, tests_skip_path)
+create_structure(test_dir, gitignore_path, tests_skip_path)

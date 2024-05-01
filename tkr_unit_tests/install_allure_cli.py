@@ -6,7 +6,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-def install_allure_commandline() -> None:
+def install_allure_cli() -> None:
     """
     Installs Allure commandline globally using npm.
     """
@@ -22,7 +22,7 @@ def main() -> None:
     """
     Main function to run the Allure commandline installation.
     """
-    install_allure_commandline()
+    install_allure_cli()
 
 if __name__ == "__main__":
     main()

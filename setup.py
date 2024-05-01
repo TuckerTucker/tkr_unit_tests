@@ -20,6 +20,7 @@ setup(
             "create_structure=tkr_unit_tests.create_structure:main",
             "create=tkr_unit_tests.create:main",
             "run_tests=tkr_unit_tests.run_tests:main",
+            "examples=tkr_unit_tests.examples:main"
         ],
     },
     classifiers=[
