@@ -113,12 +113,12 @@ def create_structure(test_dir: str, gitignore_path: str = ".gitignore", tests_sk
     
     # Copy the index.html file from the package to the _reports directory
     package_dir = Path(__file__).resolve().parent
-    index_html_src = package_dir / "index.html"
+    index_html_src = package_dir / "data/index.html"
     index_html_dst = reports_dir / "index.html"
     shutil.copy(index_html_src, index_html_dst)
 
     # Copy the pytest.ini file from the package to the parent directory
-    pytest_ini_src = package_dir / "pytest.ini"
+    pytest_ini_src = package_dir / "data/pytest.ini"
     pytest_ini_dst = Path.cwd() / "pytest.ini"
     shutil.copy(pytest_ini_src, pytest_ini_dst)
     
