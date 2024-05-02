@@ -96,7 +96,7 @@ def create_coveragerc(ignored_paths: set, coveragerc_path: str = ".coveragerc") 
             file.write(f"    {ignored_path}\n")
     logger.info(f"Created .coveragerc file: {coveragerc_path}")
 
-def create_test_structure(test_dir: str, gitignore_path: str = ".gitignore", tests_skip_path: str = "data/tests_skip.txt", gitmodules_path: str = ".gitmodules", coveragerc_path: str = ".coveragerc") -> None:
+def create_structure(test_dir: str, gitignore_path: str = ".gitignore", tests_skip_path: str = "data/tests_skip.txt", gitmodules_path: str = ".gitmodules", coveragerc_path: str = ".coveragerc") -> None:
     """    
     Args:
         test_dir (str): The path to the test directory.
