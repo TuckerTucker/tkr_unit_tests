@@ -96,7 +96,7 @@ def create_coveragerc(ignored_paths: set, coveragerc_path: str = ".coveragerc") 
             file.write(f"    {ignored_path}\n")
     logger.info(f"Created .coveragerc file: {coveragerc_path}")
 
-def create_test_structure(test_dir: str, gitignore_path: str = ".gitignore", tests_skip_path: str = "data/tests_skip.txt", gitmodules_path: str = ".gitmodules", coveragerc_path: str = ".coveragerc") -> None:
+def create_structure(test_dir: str, gitignore_path: str = ".gitignore", tests_skip_path: str = "data/tests_skip.txt", gitmodules_path: str = ".gitmodules", coveragerc_path: str = ".coveragerc") -> None:
     """    
     Args:
         test_dir (str): The path to the test directory.
@@ -114,7 +114,7 @@ def create_test_structure(test_dir: str, gitignore_path: str = ".gitignore", tes
     # Copy the index.html file from the package to the _reports directory
     package_dir = Path(__file__).resolve().parent
     index_html_src = package_dir / "data/index.html"
-    index_html_dst = reports_dir / "data/index.html"
+    index_html_dst = reports_dir / "index.html"
     shutil.copy(index_html_src, index_html_dst)
 
     # Copy the pytest.ini file from the package to the parent directory
@@ -146,7 +146,7 @@ def create_test_structure(test_dir: str, gitignore_path: str = ".gitignore", tes
         # Skip .git folders and directories specified in .gitignore, tests_skip.txt, and .gitmodules
         dirs[:] = filter(lambda d: d != ".git" and not is_ignored(root_path / d, ignored_paths), dirs)
         
-        # Skip files specified in .gitignore, tests_skip.txt, and the file running the create_test_structure
+        # Skip files specified in .gitignore, tests_skip.txt, and the file running the create_structure
         files = filter(lambda f: not is_ignored(root_path / f, ignored_paths) and f != os.path.basename(__file__), files)
         
         # Skip empty directories
