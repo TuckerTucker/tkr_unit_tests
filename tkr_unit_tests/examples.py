@@ -19,7 +19,7 @@ def main():
         create_structure(args.test_dir)
 
     if args.run_tests:
-        run_tests()
+        run_tests(9000)
 
 if __name__ == "__main__":
     main()
