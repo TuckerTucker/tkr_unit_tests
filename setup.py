@@ -5,7 +5,7 @@ setup(
     version="0.1.0",
     packages=find_packages(),
     package_data={
-        "tkr_unit_tests": ["data/index.html", "data/tests_skip.txt", "data/index.html"],
+        "tkr_unit_tests": ["data/index.html", "data/tests_skip.txt", "data/pytest.ini"],
     },
     include_package_data=True,
     install_requires=[
