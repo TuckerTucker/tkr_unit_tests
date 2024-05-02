@@ -47,12 +47,8 @@ python -m tkr_unit_tests.examples [arguments]
 
 Replace `[arguments]` with the appropriate command-line arguments based on your requirements. Here are some examples:
 
-1. To install Allure commandline:
-   ```
-   python -m tkr_unit_tests.examples --install-allure
-   ```
 
-2. To create the test directory structure:
+1. To create the test directory structure:
    ```
    python -m tkr_unit_tests.examples --create-structure
    ```
@@ -62,7 +58,7 @@ Replace `[arguments]` with the appropriate command-line arguments based on your 
    python -m tkr_unit_tests.examples --create-structure --test-dir custom_tests
    ```
 
-3. To run the unit tests:
+2. To run the unit tests:
    ```
    python -m tkr_unit_tests.examples --run-tests
    ```
@@ -71,14 +67,16 @@ Replace `[arguments]` with the appropriate command-line arguments based on your 
    ```
    python -m tkr_unit_tests.examples --run-tests --test-dir custom_tests --report-dir custom_reports
    ```
+3. To install Allure commandline:
+   ```
+   python -m tkr_unit_tests.examples --install-allure
+   ```
 
 4. To combine multiple actions:
    ```
-   python -m tkr_unit_tests.examples --install-allure --create-structure --run-tests
+   python -m tkr_unit_tests.examples --install-allure --create-structure 
    ```
 
-   This command will install Allure commandline, create the test directory structure, and run the unit tests.
-
-Make sure you have the `tkr_unit_tests` package installed in your Python environment before running these commands.
+   This command will install Allure commandline, create the test directory structure. 
 
 Note: The `-m` flag tells Python to run the specified module as a script. In this case, it runs the `examples.py` script located in the `tkr_unit_tests` package.
