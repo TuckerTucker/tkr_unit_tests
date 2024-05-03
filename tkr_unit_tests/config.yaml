@@ -1,0 +1,8 @@
+project_dir: "/Users/tucker/tkrSearxngRoot/tkr_searxng" # Full Path. Not relative path. 
+test_dir: "_tests"
+ignore_files: # files that contain lists of files to ignore
+  - ".gitignore"
+  - ".gitmodules"
+  - "tests_skip.txt" # you can add to this custom list. 
+package_data_dir: "/Users/tucker/tkrSearxngRoot/tkr_unit_tests/tkr_unit_tests/data"
+module_paths_file: "module_paths.json"
