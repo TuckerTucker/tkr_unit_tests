@@ -1,15 +1,12 @@
-# tkr_unit_tests
-
-## Install
+## Install Locally
 1. git clone http://github.com/tuckertucker/tkr_unit_tests.git
 2. cd tkr_unit_tests
 3. pip install .
-    > update (if required): data/tests_skip.txt
 
 ## Setup
 1. Create the test structure:
    ```
-   python -m tkr_unit_tests.create --project-dir /path/to/your/project
+   python -m tkr_unit_tests.main --project-dir /path/to/your/project
    ```
    This command will:
    - Walk the main directory looking for .py files
@@ -36,32 +33,41 @@
 ## Package Structure
 ```
 tkr_unit_tests/
-│   ├── tkr_unit_tests/
-│   ├── data/
-│   │   ├── index.html
-│   │   ├── pytest.ini
-│   │   └── tests_skip.txt
-│   ├── install_allure_cli.py
-│   ├── pytest.ini
-│   ├── run_tests.py
-│   ├── create.py
-│   └── create_structure.py
+├──tkr_unit_tests/
+│  ├── config.py
+│  ├── file_utils.py
+│  ├── main.py
+│  ├── test_structure.py
+│  ├── install_allure_cli.py
+│  ├── run_tests.py
+│  ├── config.yaml
+│  └── data/
+│      ├── index.html
+│      ├── pytest.ini
+│      └── tests_skip.txt
+│
 ├── README.md <-- you are here
 └── setup.py
 ```
 
 ## Command Line Usage
 
-To call the `create.py` and `run_tests.py` scripts from the command line, you can use the following commands:
+To call the `main.py` and `run_tests.py` scripts from the command line, you can use the following commands:
 
 1. To create the test directory structure:
+
+   If there are any directories or modules you want skipped add a
+   tests_skip.txt file with each item on its own line. 
+
+   The process automatically uses the .gitignore to skip items as well. 
+
    ```
-   python -m tkr_unit_tests.create --project-dir /path/to/your/project
+   python -m tkr_unit_tests.main --project-dir /path/to/your/project
    ```
 
    You can also specify a custom test directory:
    ```
-   python -m tkr_unit_tests.create --project-dir /path/to/your/project --test-dir custom_tests
+   python -m tkr_unit_tests.main --project-dir /path/to/your/project --test-dir custom_tests
    ```
 
 2. To run the unit tests:
@@ -79,4 +85,4 @@ To call the `create.py` and `run_tests.py` scripts from the command line, you ca
    python -m tkr_unit_tests.install_allure_cli
    ```
 
-Note: The `-m` flag tells Python to run the specified module as a script. In this case, it runs the `create.py` and `run_tests.py` scripts located in the `tkr_unit_tests` package.
+Note: The `-m` flag tells Python to run the specified module as a script. In this case, it runs the `main.py` and `run_tests.py` scripts located in the `tkr_unit_tests` package.

@@ -85,7 +85,7 @@ def create_structure(config_file: str) -> None:
 
     project_dir = Path(config["project_dir"]).absolute()
     test_dir = config["test_dir"]
-    ignore_files = config["ignore_files"]
+    ignore_files = [project_dir / file for file in config["ignore_files"]]
     package_data_dir = Path(config["package_data_dir"]).absolute()
     module_paths_file = config["module_paths_file"]
 
@@ -101,6 +101,9 @@ def create_structure(config_file: str) -> None:
 
     # Add the test directory to the ignored paths
     ignored_paths.add(test_dir)
+
+    # Add .git folders to the ignored paths
+    ignored_paths.add(".git")
 
     # Create the .coveragerc file based on the ignored paths
     try:
@@ -138,12 +141,22 @@ def create_structure(config_file: str) -> None:
     # Initialize a dictionary to store module paths
     module_paths: Dict[str, str] = {}
 
-     # Walk through the project directory
+    # Read the tests_skip.txt file to get the list of skipped modules and directories
+    tests_skip_file = project_dir / "tests_skip.txt"
+    skipped_paths = set()
+    if tests_skip_file.exists():
+        with open(tests_skip_file, "r") as file:
+            skipped_paths = set(line.strip() for line in file)
+
+    # Walk through the project directory
     for root, dirs, files in os.walk(project_dir):
         root_path = Path(root).absolute()
 
         # Skip ignored directories
         dirs[:] = [d for d in dirs if not is_ignored_path(root_path / d, ignored_paths, __file__)]
+
+        # Skip skipped directories
+        dirs[:] = [d for d in dirs if str(root_path / d) not in skipped_paths]
 
         # Skip ignored files
         files = [f for f in files if not is_ignored_path(root_path / f, ignored_paths, __file__)]
@@ -171,17 +184,25 @@ def create_structure(config_file: str) -> None:
             logger.error(f"Error creating __init__.py file {init_file_path}: {e}")
             raise
 
-        # Create test files for each Python file in the package
+# Create test files for each Python file in the package
         for module_file in files:
-            try:
-                create_test_files(test_path, module_file, project_dir)
-            except OSError as e:
-                logger.error(f"Error creating test file for module {module_file}: {e}")
-                raise
+            if module_file.endswith(".py"):  # Only process Python files
+                module_path = root_path / module_file
+                relative_module_path = str(module_path.relative_to(project_dir))
 
-            # Store the module path in the dictionary
-            module_path = root_path / module_file
-            module_paths[str(test_path / f"test_{module_file}")] = str(module_path.relative_to(project_dir))
+                # Skip skipped modules
+                if relative_module_path in skipped_paths:
+                    logger.info(f"Skipping module: {relative_module_path}")
+                    continue
+
+                try:
+                    create_test_files(test_path, module_file, project_dir)
+                except OSError as e:
+                    logger.error(f"Error creating test file for module {module_file}: {e}")
+                    raise
+
+                # Store the module's full path in the dictionary
+                module_paths[str(test_path / f"test_{module_file}")] = str(module_path)
 
     # Write the module paths to a JSON file in the project directory
     module_paths_file_path = project_dir / test_dir / module_paths_file

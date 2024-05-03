@@ -9,13 +9,13 @@ setup(
     },
     include_package_data=True,
     install_requires=[
-   "pytest",
-   "pytest-cov",
-   "allure-pytest",
-   "requests_mock",
-   "pytest_mock",
-   "pyyaml"
-    ],
+        "pytest",
+        "pytest-cov",
+        "allure-pytest",
+        "requests_mock",
+        "pytest_mock",
+        "pyyaml",
+            ],
     entry_points={
         "console_scripts": [
             "create_structure=tkr_unit_tests.create_structure:main",
