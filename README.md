@@ -1,3 +1,5 @@
+A Python package for creating and running unit tests with pytest and Allure reporting.
+
 ## Install Locally
 1. git clone http://github.com/tuckertucker/tkr_unit_tests.git
 2. cd tkr_unit_tests
@@ -72,11 +74,6 @@ To call the `main.py` and `run_tests.py` scripts from the command line, you can 
    You can also specify a custom test directory and report directory:
    ```
    python -m tkr_unit_tests.run_tests --test-dir custom_tests --report-dir custom_reports
-   ```
-
-3. To install Allure commandline:
-   ```
-   python -m tkr_unit_tests.install_allure_cli
    ```
 
 Note: The `-m` flag tells Python to run the specified module as a script. In this case, it runs the `main.py` and `run_tests.py` scripts located in the `tkr_unit_tests` package.
