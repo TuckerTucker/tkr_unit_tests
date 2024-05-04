@@ -101,15 +101,12 @@ def create_structure(config_file: str) -> None:
     # Read the ignore rules from the specified files
     ignore_patterns = path_manager.read_ignore_rules(ignore_files)
 
-    # Add the test directory to the ignore patterns
+    # Add to the ignore patterns
     ignore_patterns.append(test_dir)
-
-    # Add .git folders to the ignore patterns
     ignore_patterns.append(".git")
-
-    # Add the my_tests directory to the ignore patterns
     ignore_patterns.append("my_tests")
-
+    ignore_patterns.append("module_paths.json")
+    
     # Create the .coveragerc file based on the ignore patterns
     try:
         create_coveragerc(project_dir, ignore_patterns)
