@@ -5,31 +5,34 @@ from pathlib import Path
 import json
 from typing import Dict, Set
 from config import load_config
-from file_utils import read_ignore_file, is_ignored_path, copy_file
+from file_utils import copy_file
+from pathmanager import PathManager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-def create_coveragerc(ignored_paths: Set[str]) -> None:
+def create_coveragerc(project_dir: Path, ignored_paths: Set[str]) -> None:
     """
-    Creates the .coveragerc file based on the ignored paths.
+    Creates the .coveragerc file based on the ignored paths in the project directory.
 
     Args:
+        project_dir (Path): The path to the project directory.
         ignored_paths (Set[str]): A set of ignored paths.
     """
     try:
-        with open(".coveragerc", "w") as file:
+        coveragerc_path = project_dir / ".coveragerc"
+        with open(coveragerc_path, "w") as file:
             file.write("[run]\n")
             file.write("omit =\n")
             for ignored_path in ignored_paths:
                 file.write(f"    {ignored_path}\n")
-        logger.info("Created .coveragerc file")
+        logger.info(f"Created .coveragerc file: {coveragerc_path}")
     except OSError as e:
         logger.error(f"Error creating .coveragerc file: {e}")
         raise
 
-def create_test_files(test_path: Path, module_file: str, project_dir: Path) -> None:
+def create_test_files(test_path: Path, module_file: str, project_dir: Path, path_manager: PathManager) -> None:
     """
     Creates a test file for a given module file.
 
@@ -37,6 +40,7 @@ def create_test_files(test_path: Path, module_file: str, project_dir: Path) -> N
         test_path (Path): The path to the test directory.
         module_file (str): The name of the module file.
         project_dir (Path): The path to the project directory.
+        path_manager (PathManager): An instance of the PathManager class.
     """
     if module_file.endswith(".py"):
         test_file_name = f"test_{module_file}"
@@ -46,16 +50,16 @@ def create_test_files(test_path: Path, module_file: str, project_dir: Path) -> N
         if not test_file_path.exists():
             module_name = module_file[:-3]
             test_template = f"""import unittest
-from {test_path.relative_to(project_dir).as_posix().replace('/', '.')}.{module_name} import *
+            from {path_manager.resolve_path(test_path).relative_to(project_dir).as_posix().replace('/', '.')}.{module_name} import *
 
-class Test{module_name.capitalize()}(unittest.TestCase):
-    def test_{module_name}(self):
-        # TODO: Implement test case
-        pass
+            class Test{module_name.capitalize()}(unittest.TestCase):
+                def test_{module_name}(self):
+                    # TODO: Implement test case
+                    pass
 
-if __name__ == '__main__':
-    unittest.main()
-"""
+            if __name__ == '__main__':
+                unittest.main()
+            """
             try:
                 test_file_path.write_text(test_template.strip())
                 logger.info(f"Created test file: {test_file_path}")
@@ -91,36 +95,37 @@ def create_structure(config_file: str) -> None:
 
     logger.info(f"Creating test structure for the project: {project_dir}")
 
-    # Read the ignore files and combine the ignored paths
-    ignored_paths = set()
-    for ignore_file in ignore_files:
-        try:
-            ignored_paths.update(read_ignore_file(ignore_file))
-        except FileNotFoundError as e:
-            logger.warning(f"Ignore file not found: {ignore_file}. Skipping.")
+    # Create an instance of the PathManager class
+    path_manager = PathManager(project_dir)
 
-    # Add the test directory to the ignored paths
-    ignored_paths.add(test_dir)
+    # Read the ignore rules from the specified files
+    ignore_patterns = path_manager.read_ignore_rules(ignore_files)
 
-    # Add .git folders to the ignored paths
-    ignored_paths.add(".git")
+    # Add the test directory to the ignore patterns
+    ignore_patterns.append(test_dir)
 
-    # Create the .coveragerc file based on the ignored paths
+    # Add .git folders to the ignore patterns
+    ignore_patterns.append(".git")
+
+    # Add the my_tests directory to the ignore patterns
+    ignore_patterns.append("my_tests")
+
+    # Create the .coveragerc file based on the ignore patterns
     try:
-        create_coveragerc(ignored_paths)
+        create_coveragerc(project_dir, ignore_patterns)
     except OSError as e:
         logger.error(f"Error creating .coveragerc file: {e}")
         raise
 
     # Copy the pytest.ini file from the package data directory to the project directory
     try:
-        copy_file(package_data_dir / "pytest.ini", project_dir / "pytest.ini")
+        copy_file(package_data_dir / "pytest.ini", project_dir / "pytest.ini", path_manager)
     except FileNotFoundError as e:
         logger.warning(f"pytest.ini file not found in package data directory. Skipping.")
     except OSError as e:
         logger.error(f"Error copying pytest.ini file: {e}")
         raise
-
+    
     # Create the _reports directory within the test directory
     reports_dir = project_dir / test_dir / "_reports"
     try:
@@ -131,7 +136,7 @@ def create_structure(config_file: str) -> None:
 
     # Copy the index.html file from the package data directory to the _reports directory
     try:
-        copy_file(package_data_dir / "index.html", reports_dir / "index.html")
+        copy_file(package_data_dir / "index.html", reports_dir / "index.html", path_manager)
     except FileNotFoundError as e:
         logger.warning(f"index.html file not found in package data directory. Skipping.")
     except OSError as e:
@@ -148,61 +153,31 @@ def create_structure(config_file: str) -> None:
         with open(tests_skip_file, "r") as file:
             skipped_paths = set(line.strip() for line in file)
 
-    # Walk through the project directory
-    for root, dirs, files in os.walk(project_dir):
-        root_path = Path(root).absolute()
+    # Copy test_*.py modules from my_tests to _tests
+    my_tests_dir = project_dir / "my_tests"
+    if my_tests_dir.exists():
+        for test_file in my_tests_dir.glob("test_*.py"):
+            try:
+                copy_file(test_file, project_dir / test_dir / test_file.name, path_manager)
+                logger.info(f"Copied test file: {test_file} -> {project_dir / test_dir / test_file.name}")
+            except OSError as e:
+                logger.error(f"Error copying test file {test_file}: {e}")
+                raise
+            
+    # Walk through the project directory using the PathManager
+    for file_path in path_manager.walk_directory(project_dir, ignore_patterns):
+        if file_path.suffix == ".py":
+            relative_path = file_path.relative_to(project_dir)
+            test_path = project_dir / test_dir / relative_path.parent
+            module_file = file_path.name
 
-        # Skip ignored directories
-        dirs[:] = [d for d in dirs if not is_ignored_path(root_path / d, ignored_paths, __file__)]
+            try:
+                create_test_files(test_path, module_file, project_dir, path_manager)
+            except OSError as e:
+                logger.error(f"Error creating test file for module {module_file}: {e}")
+                raise
 
-        # Skip skipped directories
-        dirs[:] = [d for d in dirs if str(root_path / d) not in skipped_paths]
-
-        # Skip ignored files
-        files = [f for f in files if not is_ignored_path(root_path / f, ignored_paths, __file__)]
-
-        # Skip empty directories
-        if not dirs and not files:
-            logger.info(f"Skipping empty directory: {root_path}")
-            continue
-
-        # Create the corresponding test directory
-        test_path = project_dir / test_dir / root_path.relative_to(project_dir)
-        try:
-            test_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created test directory: {test_path}")
-        except OSError as e:
-            logger.error(f"Error creating test directory {test_path}: {e}")
-            raise
-
-        # Create __init__.py file in the test directory if it doesn't exist
-        init_file_path = test_path / "__init__.py"
-        try:
-            init_file_path.touch(exist_ok=True)
-            logger.info(f"Created __init__.py file: {init_file_path}")
-        except OSError as e:
-            logger.error(f"Error creating __init__.py file {init_file_path}: {e}")
-            raise
-
-# Create test files for each Python file in the package
-        for module_file in files:
-            if module_file.endswith(".py"):  # Only process Python files
-                module_path = root_path / module_file
-                relative_module_path = str(module_path.relative_to(project_dir))
-
-                # Skip skipped modules
-                if relative_module_path in skipped_paths:
-                    logger.info(f"Skipping module: {relative_module_path}")
-                    continue
-
-                try:
-                    create_test_files(test_path, module_file, project_dir)
-                except OSError as e:
-                    logger.error(f"Error creating test file for module {module_file}: {e}")
-                    raise
-
-                # Store the module's full path in the dictionary
-                module_paths[str(test_path / f"test_{module_file}")] = str(module_path)
+            module_paths[str(test_path / f"test_{module_file}")] = str(file_path)
 
     # Write the module paths to a JSON file in the project directory
     module_paths_file_path = project_dir / test_dir / module_paths_file

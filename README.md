@@ -15,21 +15,15 @@
    - Skip empty directories, items listed in .gitignore, items in data/tests_skip.txt
    - Create a `_tests` directory that includes a `_reports` subdirectory with an index.html file
 
-2. Install Allure commandline:
-   ```
-   python -m tkr_unit_tests.install_allure_cli
-   ```
-   > After the tests are run, the index.html will show the Allure and Coverage reports
-
 ## Write your Tests
-1. Write your tests in the appropriate files created in the `_tests` directory
+2. Write your tests in the appropriate files created in the `_tests` directory
 
 ## Start Testing
-1. Run the tests:
+3. Run the tests:
    ```
    python -m tkr_unit_tests.run_tests
    ```
-
+   
 ## Package Structure
 ```
 tkr_unit_tests/
